@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     private float powerupStrength = 15.0f;
     public float speed = 5.0f;
     public bool hasPowerup = false;
-    public GameObject powerIndicator;
+    public GameObject powerUpIndicator;
 
     // Start is called before the first frame update
     void Start()
@@ -23,9 +23,9 @@ public class PlayerController : MonoBehaviour
     {
         float forwardInput = Input.GetAxis("Vertical");
 
-        playerRb.AddForce(focalPoint.transform.forward * speed * forwardInput);
+        playerRb.AddForce(focalPoint.transform.forward * forwardInput * speed);
 
-        powerIndicator.transform.position = transform.position + new Vector3(0, -0.5f, 0);
+        powerUpIndicator.transform.position = transform.position + new Vector3(0, -0.5f, 0);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Powerup"))
         {
             hasPowerup = true;
-            powerIndicator.gameObject.SetActive(true);
+            powerUpIndicator.gameObject.SetActive(true);
             Destroy(other.gameObject);
             StartCoroutine(PowerupCountdownRoutine());
         }
@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(7);
         hasPowerup = false;
-        powerIndicator.gameObject.SetActive(false);
+        powerUpIndicator.gameObject.SetActive(false);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -51,10 +51,10 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.CompareTag("Enemy") && hasPowerup)
         {
             Rigidbody enemyRigidbody = collision.gameObject.GetComponent<Rigidbody>();
-            Vector3 awayFromPlayer = (collision.gameObject.transform.position - transform.position);
+            Vector3 awayFromPlayer = collision.gameObject.transform.position - transform.position;
 
             enemyRigidbody.AddForce(awayFromPlayer * powerupStrength, ForceMode.Impulse);
-            Debug.Log("Collided with" + collision.gameObject.name + "with powerup set to " + hasPowerup);
+            Debug.Log("Collided with: " + collision.gameObject.name + "with powerup set to " + hasPowerup);
         }
     }
 }
